@@ -1,44 +1,45 @@
 package graph
 
-// Vertex represents a vertex in graph theory.
-// It contains a value of the vertex.
-type Vertex struct {
-	Value interface{}
-}
-
-// NewVertex returns new object type *Vertex with value val.
-func NewVertex(val interface{}) *Vertex {
-	return &Vertex{Value: val}
-}
-
 // Graph represents a graph in graph theory.
 // It contains a map shows existence of directed edges from the map key vertex
 // to map value vertices.
+// The field 'relations' can be explained as map[ *VERTEX_FROM ] []*VERTICES_TO
 type Graph struct {
 	relations map[*Vertex][]*Vertex
 }
 
-// NewGraph returns new object type *Graph.
+// NewGraph returns a new object of type *Graph.
 func NewGraph() *Graph {
 	return &Graph{relations: make(map[*Vertex][]*Vertex)}
 }
 
-// AddRelation adds directed relations between vertex v
-// and vertices verts in the graph g.
-func (g *Graph) AddRelation(v *Vertex, verts ...*Vertex) {
-	g.relations[v] = append(g.relations[v], verts...)
-}
+// AddRelation adds directed edges between vertex 'from'
+// and vertices 'to' in the graph 'g'.
+func (g *Graph) AddRelation(from *Vertex, to ...*Vertex) {
 
-// AddUndirectedRelation adds undirected relations between vertex v
-// and vertices verts in the graph g.
-func (g *Graph) AddUndirectedRelation(v *Vertex, verts ...*Vertex) {
-	g.relations[v] = append(g.relations[v], verts...)
-	for _, vert := range verts {
-		g.relations[vert] = append(g.relations[vert], v)
+	g.relations[from] = append(g.relations[from], to...)
+
+	for _, v := range to {
+		if _, exist := g.relations[v]; !exist {
+			g.relations[v] = nil
+		}
 	}
+
 }
 
-// GetRelations returns slice of *Vertex - verties which have directed edges from vertex v.
+// AddBidirectedRelation adds undirected edges between vertex 'vert'
+// and vertices 'verts' in the graph 'g'.
+func (g *Graph) AddBidirectedRelation(vert *Vertex, verts ...*Vertex) {
+
+	g.AddRelation(vert, verts...)
+
+	for _, v := range verts {
+		g.AddRelation(v, vert)
+	}
+
+}
+
+// GetRelations returns slice of *Vertex - vertices which have directed edges from vertex 'v'.
 func (g *Graph) GetRelations(v *Vertex) []*Vertex {
 	return g.relations[v]
 }
